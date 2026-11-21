@@ -1,0 +1,87 @@
+---
+/**
+ * Un thème de compétences (ex. « Réseau ») : technos maîtrisées en tags pleins,
+ * technos en cours d'apprentissage en tags pointillés.
+ */
+interface Props {
+  label: string;
+  note?: string;
+  tags?: string[];
+  learning?: string[];
+  learningLabel?: string;
+}
+const { label, note, tags = [], learning = [], learningLabel = '' } = Astro.props;
+---
+
+<div class="skill" data-reveal>
+  <p class="skill__label pixel">{label}</p>
+  {note && <p class="skill__note">{note}</p>}
+  {
+    tags.length > 0 && (
+      <ul class="skill__tags">
+        {tags.map((t) => (
+          <li>{t}</li>
+        ))}
+      </ul>
+    )
+  }
+  {
+    learning.length > 0 && (
+      <ul class="skill__tags" aria-label={learningLabel}>
+        <li class="skill__learning-label pixel" aria-hidden="true">
+          ▸ {learningLabel}
+        </li>
+        {learning.map((t) => (
+          <li class="skill__learning">{t}</li>
+        ))}
+      </ul>
+    )
+  }
+</div>
+
+<style>
+  .skill {
+    display: grid;
+    gap: calc(var(--px) * 2);
+  }
+  .skill__label {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  .skill__label::before {
+    content: '◆ ';
+    color: var(--matcha);
+  }
+  .skill__note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--paper-dim);
+  }
+  .skill__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--px) * 2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .skill__tags li {
+    padding: 0 calc(var(--px) * 2);
+    border: 1px solid var(--ai);
+    color: var(--paper-dim);
+    font-size: 0.85rem;
+  }
+  /* en apprentissage : contour pointillé doré */
+  .skill__tags .skill__learning {
+    border-style: dashed;
+    border-color: var(--kin);
+    color: var(--kin);
+  }
+  .skill__tags .skill__learning-label {
+    border: 0;
+    padding: 0;
+    color: var(--paper-dim);
+    font-size: 0.75rem;
+    align-self: center;
+  }
+</style>

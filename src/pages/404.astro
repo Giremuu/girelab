@@ -1,0 +1,46 @@
+---
+/**
+ * Page d'erreur 404. GitHub Pages ne sert qu'un seul 404.html :
+ * le texte est affiché en français et en anglais.
+ */
+import Base from '../layouts/Base.astro';
+import Window from '../components/Window.astro';
+import { useTranslations } from '../i18n/ui';
+
+const fr = useTranslations('fr');
+const en = useTranslations('en');
+---
+
+<Base title="404">
+  <div class="lost">
+    <Window kanji="迷" title="404">
+      <p class="pixel big">…</p>
+      <p class="pixel">{fr('notfound.text')}</p>
+      <p class="pixel en" lang="en">{en('notfound.text')}</p>
+      <p class="links">
+        <a href="/" class="pixel">{fr('notfound.back')}</a>
+        <a href="/en/" class="pixel" lang="en">{en('notfound.back')}</a>
+      </p>
+    </Window>
+  </div>
+</Base>
+
+<style>
+  .lost {
+    max-width: 640px;
+    margin: 10vh auto 0;
+  }
+  .big {
+    font-size: 2.5rem;
+    margin: 0;
+    color: var(--matcha);
+  }
+  .en {
+    color: var(--paper-dim);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-lg);
+  }
+</style>

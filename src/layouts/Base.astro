@@ -1,0 +1,221 @@
+---
+/**
+ * Gabarit commun à toutes les pages du site.
+ * - <head> : titre, description, langues alternatives (hreflang), polices, transitions de page
+ * - header : logo, navigation, sélecteur de langue, boutons son et musique
+ * - fond animé (lucioles), footer, apparitions au scroll
+ * Props : lang (langue de la page), title, description.
+ */
+import { ClientRouter } from 'astro:transitions';
+import '@fontsource/dotgothic16';
+import '@fontsource/zen-maru-gothic/400.css';
+import '@fontsource/zen-maru-gothic/700.css';
+import '../styles/global.css';
+import Fireflies from '../components/Fireflies.astro';
+import AudioToggle from '../components/AudioToggle.astro';
+import LangSwitcher from '../components/LangSwitcher.astro';
+import { languages, langs, defaultLang, type Lang } from '../i18n/config';
+import { useTranslations } from '../i18n/ui';
+import { localizePath, stripLang } from '../i18n/routes';
+
+interface Props {
+  lang?: Lang;
+  title?: string;
+  description?: string;
+}
+const { lang = defaultLang, title, description } = Astro.props;
+const t = useTranslations(lang);
+const fullTitle = title ? `${title} · girelab` : 'girelab';
+const desc = description ?? t('site.description');
+
+const path = Astro.url.pathname;
+// la page 404 n'existe pas dans chaque langue : le sélecteur renvoie vers l'accueil
+const basePath = /^\/(en\/)?404/.test(path) ? '/' : stripLang(path);
+const nav = [
+  { href: '/', label: t('nav.home') },
+  { href: '/cv/', label: t('nav.cv') },
+  { href: '/projets/', label: t('nav.projects') },
+  { href: '/jeux/', label: t('nav.games') },
+  { href: '/contact/', label: t('nav.contact') },
+];
+const isActive = (href: string) => (href === '/' ? basePath === '/' : basePath.startsWith(href));
+
+// Transition « changement de zone » : fondu au noir en escalier
+const step = {
+  old: { name: 'zone-out', duration: '0.22s', easing: 'steps(4)', fillMode: 'both' },
+  new: { name: 'zone-in', duration: '0.3s', easing: 'steps(5)', fillMode: 'both' },
+};
+const zone = { forwards: step, backwards: step };
+---
+
+<!doctype html>
+<html lang={languages[lang].htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={desc} />
+    <meta name="theme-color" content="#050509" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={new URL(path, Astro.site)} />
+    {langs.map((l) => <link rel="alternate" hreflang={l} href={new URL(localizePath(basePath, l), Astro.site)} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(basePath, Astro.site)} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={desc} />
+    <title>{fullTitle}</title>
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      // la navigation côté client remplace <html> : on remet la classe à chaque page
+      document.addEventListener('astro:after-swap', () => document.documentElement.classList.add('js'));
+    </script>
+    <ClientRouter />
+  </head>
+  <body>
+    <Fireflies />
+    <a class="skip visually-hidden" href="#main">{t('skip')}</a>
+
+    <header class="topbar container">
+      <a href={localizePath('/', lang)} class="logo pixel" aria-label="girelab">
+        <svg viewBox="0 0 16 16" width="24" height="24" aria-hidden="true" shape-rendering="crispEdges">
+          <rect x="1" y="3" width="14" height="2" fill="var(--matcha)"></rect>
+          <rect x="3" y="6" width="10" height="1" fill="var(--matcha)"></rect>
+          <rect x="4" y="5" width="2" height="9" fill="var(--matcha)"></rect>
+          <rect x="10" y="5" width="2" height="9" fill="var(--matcha)"></rect>
+          <rect x="7" y="5" width="2" height="1" fill="var(--kin)"></rect>
+        </svg>
+        girelab
+      </a>
+      <nav class="topnav" aria-label={t('nav.label')}>
+        <ul>
+          {
+            nav.map((n) => (
+              <li>
+                <a
+                  href={localizePath(n.href, lang)}
+                  class="pixel"
+                  aria-current={isActive(n.href) ? 'page' : undefined}
+                >
+                  {n.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <div class="tools">
+        <LangSwitcher lang={lang} basePath={basePath} />
+        <AudioToggle kind="sound" label={t('sound.label')} />
+        <AudioToggle kind="music" label={t('music.label')} />
+      </div>
+    </header>
+
+    <main id="main" class="container" transition:animate={zone}>
+      <slot />
+    </main>
+
+    <footer class="footer container pixel">
+      <span>© {new Date().getFullYear()} Giremuu</span>
+    </footer>
+
+    <script>
+      import { initReveal, killReveal } from '../scripts/reveal';
+      document.addEventListener('astro:page-load', initReveal);
+      document.addEventListener('astro:before-swap', killReveal);
+    </script>
+  </body>
+</html>
+
+<style>
+  .topbar {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'logo nav tools';
+    align-items: center;
+    gap: var(--gap);
+    padding-block: var(--gap);
+    border-bottom: 1px solid var(--night-3); /* même barre que le footer */
+  }
+  .logo {
+    grid-area: logo;
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--px) * 2);
+    font-size: 1.3rem;
+    color: var(--paper);
+  }
+  .topnav {
+    grid-area: nav;
+    justify-self: end;
+    min-width: 0;
+  }
+  .topnav ul {
+    display: flex;
+    gap: calc(var(--px) * 5);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .topnav a {
+    color: var(--paper-dim);
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  .topnav a:hover,
+  .topnav a[aria-current='page'] {
+    color: var(--kin);
+  }
+  .topnav a[aria-current='page']::before {
+    content: '♦ ';
+    color: var(--matcha);
+  }
+  .tools {
+    grid-area: tools;
+    display: flex;
+    gap: calc(var(--px) * 2);
+    align-items: center;
+  }
+
+  /* Tablette / mobile : nav sur sa propre ligne, défilable horizontalement */
+  @media (max-width: 820px) {
+    .topbar {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        'logo tools'
+        'nav nav';
+      row-gap: calc(var(--px) * 3);
+    }
+    .topnav {
+      justify-self: stretch;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-top: 1px solid var(--night-3);
+      padding-top: calc(var(--px) * 3);
+    }
+    .topnav ul {
+      gap: calc(var(--px) * 6);
+      padding-right: var(--gap-lg);
+    }
+  }
+
+  main {
+    padding-block: var(--gap) var(--gap-lg);
+    min-height: 70dvh;
+  }
+  .footer {
+    text-align: center;
+    padding-block: var(--gap-lg);
+    color: var(--paper-dim);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--night-3);
+  }
+  .skip:focus {
+    position: fixed;
+    top: var(--px);
+    left: var(--px);
+    width: auto;
+    height: auto;
+    clip-path: none;
+    padding: var(--px) calc(var(--px) * 3);
+    background: var(--night);
+    z-index: 10;
+  }
+</style>

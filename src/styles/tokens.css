@@ -1,0 +1,34 @@
+/*
+ * Design tokens girelab — source unique de la DA.
+ * Tout composant (site, et plus tard les jeux) doit consommer ces variables
+ * plutôt que des valeurs en dur. Pensé pour être extrait en package plus tard.
+ */
+:root {
+  /* Palette « nuit japonaise » */
+  --black: #000;           /* fond des cadres de dialogue */
+  --night: #050509;        /* fond */
+  --night-2: #0f0f1e;      /* fond des fenêtres */
+  --night-3: #1c1c34;      /* barres header / footer, survols */
+  --paper: #f2f0e6;        /* texte, bordures */
+  --paper-dim: #a9a6b8;    /* texte secondaire */
+  --kin: #f3c25b;          /* Secondaire */
+  --ai: #4b5ea8;           /* Détails */
+  --matcha: #7fbf6a;       /* Main couleur */
+
+  /* Typo */
+  --font-pixel: 'DotGothic16', ui-monospace, monospace;
+  --font-body: 'Zen Maru Gothic', ui-rounded, system-ui, sans-serif;
+
+  /* Grille « pixel » : tout est multiple de --px */
+  --px: 4px;
+  --border: calc(var(--px) * 1);
+  --gap: calc(var(--px) * 4);
+  --gap-lg: calc(var(--px) * 8);
+  --container: 1600px;
+  --gutter: clamp(16px, 4vw, 64px); /* marge latérale fluide */
+
+  /* Mouvement */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur: 280ms;
+}

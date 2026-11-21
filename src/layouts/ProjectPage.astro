@@ -1,0 +1,173 @@
+---
+/**
+ * Gabarit d'une fiche projet ou jeu (/projets/<slug>/, /jeux/<slug>/).
+ * - colonne principale : description + contenu Markdown de la fiche (+ jeu embarqué si playable)
+ * - colonne « Infos » : statut, tags, date, lien vers le code source / la démo
+ * La fiche vient de src/content/projects/<langue>/<slug>.md
+ */
+import { render } from 'astro:content';
+import Base from './Base.astro';
+import Window from '../components/Window.astro';
+import { section, type Project } from '../lib/projects';
+import { useTranslations } from '../i18n/ui';
+import { localizePath } from '../i18n/routes';
+
+interface Props {
+  project: Project;
+}
+const { project } = Astro.props;
+const { data, lang } = project;
+const t = useTranslations(lang);
+const { Content } = await render(project.entry);
+const back = localizePath(`/${section[data.kind]}/`, lang);
+const gameSrc = `/games/${project.slug}/index.html`;
+---
+
+<Base lang={lang} title={data.title} description={data.description}>
+  <a href={back} class="back pixel">{t('project.back')}</a>
+
+  <div class="layout">
+    <Window kanji={data.icon} title={data.title} as="article" class="main">
+      {project.fallback && <p class="fallback pixel">{t('project.fallback')}</p>}
+      <p class="lead">{data.description}</p>
+
+      {
+        data.kind === 'game' && data.playable && (
+          <div class="game">
+            <iframe src={gameSrc} title={`${t('project.play')} ${data.title}`} loading="lazy" allowfullscreen />
+          </div>
+        )
+      }
+
+      <div class="prose">
+        <Content />
+      </div>
+    </Window>
+
+    <Window as="aside" title={t('project.info')} class="side">
+      <dl class="info">
+        <dt class="pixel">{t('project.status')}</dt>
+        <dd class="pixel status">{t(`status.${data.status}`)}</dd>
+        {
+          data.tags.length > 0 && (
+            <>
+              <dt class="pixel">{t('project.tags')}</dt>
+              <dd class="tags">
+                {data.tags.map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </dd>
+            </>
+          )
+        }
+        <dt class="pixel">{t('project.date')}</dt>
+        <dd>{data.date.toLocaleDateString(lang, { year: 'numeric', month: 'long' })}</dd>
+      </dl>
+      {
+        (data.repo || data.demo) && (
+          <p class="links pixel">
+            {data.repo && <a href={data.repo}>{t('project.source')}</a>}
+            {data.demo && <a href={data.demo}>{t('project.demo')}</a>}
+          </p>
+        )
+      }
+    </Window>
+  </div>
+</Base>
+
+<style>
+  .back {
+    display: inline-block;
+    margin-bottom: var(--gap);
+    font-size: 0.9rem;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+    gap: var(--gap-lg);
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+  }
+  .fallback {
+    font-size: 0.8rem;
+    color: var(--kin);
+    border-left: var(--border) solid var(--kin);
+    padding-left: calc(var(--px) * 3);
+  }
+  .lead {
+    font-size: 1.2rem;
+    margin-top: 0;
+  }
+  .game {
+    border: var(--border) solid var(--paper);
+    aspect-ratio: 16 / 10;
+    margin-block: var(--gap);
+    background: #000;
+  }
+  .game iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .prose {
+    max-width: 75ch;
+  }
+  .prose :global(h2),
+  .prose :global(h3) {
+    color: var(--kin);
+  }
+  .prose :global(code) {
+    font-family: ui-monospace, monospace;
+    font-size: 0.85em;
+    background: var(--night-3);
+    padding: 0 var(--px);
+    overflow-wrap: anywhere;
+  }
+  .prose :global(pre) {
+    padding: var(--gap);
+    border: 1px solid var(--night-3);
+    overflow-x: auto;
+  }
+  .prose :global(img) {
+    border: var(--border) solid var(--night-3);
+  }
+  .info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: calc(var(--px) * 3) var(--gap);
+    margin: 0;
+    align-items: baseline;
+  }
+  .info dt {
+    color: var(--paper-dim);
+    font-size: 0.8rem;
+  }
+  .info dd {
+    margin: 0;
+  }
+  .status {
+    color: var(--matcha);
+    font-size: 0.85rem;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--px) * 2);
+  }
+  .tag {
+    padding: 0 calc(var(--px) * 2);
+    border: 1px solid var(--ai);
+    color: var(--paper-dim);
+    font-size: 0.8rem;
+  }
+  .links {
+    display: grid;
+    gap: calc(var(--px) * 2);
+    margin: var(--gap) 0 0;
+  }
+</style>

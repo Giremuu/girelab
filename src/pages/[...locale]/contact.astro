@@ -1,0 +1,58 @@
+---
+/**
+ * Page Contact (/contact/ et /en/contact/).
+ * Même principe que l'accueil : dialogue + menu au cœur, un bouton par lien de src/data/contact.ts.
+ * Disposition des boutons : props columns / width / gap de <HeartMenu>.
+ */
+import Base from '../../layouts/Base.astro';
+import DialogBox from '../../components/DialogBox.astro';
+import HeartMenu, { type Choice } from '../../components/HeartMenu.astro';
+import pfp from '../../assets/pfp.png';
+import { localeParams, langFromParam } from '../../i18n/config';
+import { useTranslations } from '../../i18n/ui';
+import { contacts } from '../../data/contact';
+
+export function getStaticPaths() {
+  return localeParams.map((locale) => ({ params: { locale } }));
+}
+
+const lang = langFromParam(Astro.params.locale);
+const t = useTranslations(lang);
+
+// Un bouton par lien de src/data/contact.ts ; un lien sans adresse est grisé (« à compléter »)
+const choices: Choice[] = contacts.map((c) => ({
+  href: c.href,
+  label: c.label.toUpperCase(),
+  sub: c.href ? c.handle : t('contact.todo'),
+}));
+---
+
+<Base lang={lang} title={t('nav.contact')} description={t('contact.description')}>
+  <h1 class="visually-hidden">{t('nav.contact')}</h1>
+  <div class="contact">
+    <DialogBox
+      id="contact"
+      lines={[t('contact.intro')]}
+      speaker="Giremuu"
+      portrait={pfp}
+      skipLabel={t('home.skip')}
+      startLabel={t('home.start')}
+    />
+    <HeartMenu
+      choices={choices}
+      hint={t('home.hint')}
+      label={t('nav.contact')}
+      columns={3}
+      width="340px"
+      gap="min(120px, 6vw)"
+    />
+  </div>
+</Base>
+
+<style>
+  .contact {
+    display: grid;
+    gap: clamp(24px, 4vw, 48px);
+    padding-top: clamp(8px, 6vh, 72px);
+  }
+</style>

@@ -1,0 +1,138 @@
+---
+/**
+ * Bouton « Télécharger le CV » avec choix de la langue.
+ * Les PDF vont dans public/cv/ : cv-fr.pdf, cv-en.pdf, cv-ja.pdf.
+ * Une langue dont le fichier n'existe pas encore est affichée grisée (« bientôt »).
+ */
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
+interface Props {
+  label: string;
+  soon: string;
+}
+const { label, soon } = Astro.props;
+
+// Ajouter une langue = ajouter une ligne ici + déposer le PDF dans public/cv/
+const files = [
+  { code: 'fr', short: 'FR', name: 'Français', file: 'cv-fr.pdf' },
+  { code: 'en', short: 'EN', name: 'English', file: 'cv-en.pdf' },
+  { code: 'ja', short: 'JP', name: '日本語', file: 'cv-ja.pdf' },
+];
+// vérifié au build, depuis la racine du projet
+const items = files.map((f) => ({ ...f, available: existsSync(join(process.cwd(), 'public', 'cv', f.file)) }));
+---
+
+<details class="dl" data-cv-download>
+  <summary class="pixel">
+    <span aria-hidden="true">▼</span>
+    {label}
+  </summary>
+  <ul>
+    {
+      items.map((f) => (
+        <li>
+          {f.available ? (
+            <a href={`/cv/${f.file}`} download={`CV-Gwilherm-LE-GALLIC-${f.short}.pdf`} lang={f.code} class="pixel">
+              <span class="dl__code">{f.short}</span> {f.name}
+            </a>
+          ) : (
+            <span class="dl__off pixel" lang={f.code}>
+              <span class="dl__code">{f.short}</span> {f.name} <em>({soon})</em>
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</details>
+
+<script>
+  // Ferme le menu au clic extérieur / Échap
+  document.addEventListener('astro:page-load', () => {
+    const el = document.querySelector<HTMLDetailsElement>('[data-cv-download]');
+    if (!el) return;
+    const close = (e: Event) => {
+      if (e instanceof KeyboardEvent ? e.key === 'Escape' : !el.contains(e.target as Node)) el.open = false;
+    };
+    document.addEventListener('click', close);
+    document.addEventListener('keydown', close);
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        document.removeEventListener('click', close);
+        document.removeEventListener('keydown', close);
+      },
+      { once: true },
+    );
+  });
+</script>
+
+<style>
+  /* menu ouvert : sa fenêtre passe au-dessus des fenêtres suivantes (Skills…) */
+  :global(.window:has(.dl[open])) {
+    z-index: 30;
+  }
+  .dl {
+    position: relative;
+    display: block;
+    width: fit-content;
+    margin: var(--gap) 0 0 auto; /* aligné à droite du bloc Profil */
+  }
+  summary {
+    list-style: none;
+    display: inline-flex;
+    gap: calc(var(--px) * 2);
+    align-items: center;
+    padding: calc(var(--px) * 2) calc(var(--px) * 4);
+    border: var(--border) solid var(--matcha);
+    color: var(--matcha);
+    cursor: pointer;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary:hover,
+  .dl[open] summary {
+    border-color: var(--kin);
+    color: var(--kin);
+  }
+  ul {
+    position: absolute;
+    right: 0; /* le menu s'ouvre vers la gauche, sous le bouton */
+    top: calc(100% + var(--px));
+    z-index: 20;
+    min-width: 200px;
+    margin: 0;
+    padding: var(--px);
+    list-style: none;
+    background: var(--night);
+    border: var(--border) solid var(--paper);
+  }
+  a,
+  .dl__off {
+    display: flex;
+    gap: calc(var(--px) * 2);
+    align-items: baseline;
+    padding: calc(var(--px) * 2);
+    color: var(--paper);
+    font-size: 0.9rem;
+  }
+  a:hover,
+  a:focus-visible {
+    background: var(--night-3);
+    color: var(--kin);
+  }
+  .dl__off {
+    color: var(--paper-dim);
+    cursor: not-allowed;
+  }
+  .dl__off em {
+    font-size: 0.75rem;
+    font-style: normal;
+  }
+  .dl__code {
+    color: var(--paper-dim);
+    min-width: 2ch;
+  }
+</style>

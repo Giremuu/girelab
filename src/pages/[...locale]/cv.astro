@@ -1,0 +1,243 @@
+---
+/**
+ * Page CV (/cv/ et /en/cv/).
+ * Colonne gauche : Profil (+ langues, bouton de téléchargement), Skills, Diplômes et certifications.
+ * Colonne droite : Expériences.
+ * Données : src/data/cv/<langue>.yaml. PDF téléchargeables : public/cv/ (voir CvDownload.astro).
+ */
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Window from '../../components/Window.astro';
+import SkillGroup from '../../components/SkillGroup.astro';
+import CvDownload from '../../components/CvDownload.astro';
+import pfp from '../../assets/pfp.png';
+import { localeParams, langFromParam } from '../../i18n/config';
+import { useTranslations } from '../../i18n/ui';
+import { getCv, getDegrees, formatPeriod } from '../../lib/cv';
+
+export function getStaticPaths() {
+  return localeParams.map((locale) => ({ params: { locale } }));
+}
+
+const lang = langFromParam(Astro.params.locale);
+const t = useTranslations(lang);
+const cv = await getCv(lang);
+const { profile, skills, experiences } = cv;
+const degrees = getDegrees(cv); // diplômes + certifications, du plus récent au plus ancien
+const period = (start?: string, end?: string) => formatPeriod(t('cv.now'), start, end);
+---
+
+<Base lang={lang} title={t('nav.cv')} description={t('cv.description')}>
+  <h1 class="page-title cv-title">{t('cv.title')}</h1>
+
+  <div class="layout">
+    <div class="col">
+      <Window title={t('cv.profile')} reveal>
+        <div class="profile__head">
+          <Image src={pfp} alt="" width={96} height={96} densities={[1, 2]} class="avatar" />
+          <div>
+            <p class="pixel name">{profile.name}</p>
+            <p class="role">{profile.role}</p>
+            {profile.location && <p class="loc">◎ {profile.location}</p>}
+          </div>
+        </div>
+        <p class="summary">{profile.summary}</p>
+        {
+          profile.languages.length > 0 && (
+            <div class="langs">
+              <p class="langs__title pixel">{t('cv.languages')}</p>
+              <ul>
+                {profile.languages.map((l) => (
+                  <li class:list={{ learning: l.learning }}>
+                    <span class="pixel">{l.label}</span>
+                    <span class="langs__level">{l.level}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+        <CvDownload label={t('cv.download')} soon={t('cv.soon')} />
+      </Window>
+
+      <Window title={t('cv.skills')} reveal>
+        <div class="skills">
+          {skills.map((s) => <SkillGroup label={s.label} note={s.note} tags={s.tags} learning={s.learning} learningLabel={t('cv.learning')} />)}
+        </div>
+      </Window>
+
+      <Window title={t('cv.training')} reveal>
+        <ol class="timeline">
+          {
+            degrees.map((x) => (
+              <li data-reveal>
+                <p class="pixel when">{period(x.start, x.end)}</p>
+                <p class="pixel what">
+                  {x.title} <span>@ {x.org}</span>
+                </p>
+                {x.location && <p class="where">◎ {x.location}</p>}
+              </li>
+            ))
+          }
+        </ol>
+      </Window>
+    </div>
+
+    <div class="col">
+      <Window title={t('cv.quests')} reveal>
+        <ol class="timeline">
+          {
+            experiences.map((x) => (
+              <li data-reveal>
+                <p class="pixel when">{period(x.start, x.end)}</p>
+                <p class="pixel what">
+                  {x.title} <span>@ {x.org}</span>
+                </p>
+                {x.location && <p class="where">◎ {x.location}</p>}
+                {x.context && <p class="context">{x.context}</p>}
+                {x.details.length > 0 && (
+                  <ul>
+                    {x.details.map((d) => (
+                      <li>{d}</li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))
+          }
+        </ol>
+      </Window>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .cv-title {
+    font-size: clamp(1.6rem, 3vw, 2.2rem); /* taille du titre « Qui suis-je ? » */
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(300px, 1fr) minmax(0, 1.6fr);
+    gap: var(--gap-lg);
+    align-items: start;
+  }
+  .col {
+    display: grid;
+    gap: var(--gap);
+  }
+  @media (max-width: 960px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+  }
+  .profile__head {
+    display: flex;
+    gap: var(--gap);
+    align-items: center;
+  }
+  .profile__head :global(.avatar) {
+    width: 96px;
+    height: 96px;
+    flex: none;
+    object-fit: cover;
+    border: var(--border) solid var(--paper);
+  }
+  .profile__head p {
+    margin: 0;
+  }
+  .name {
+    font-size: 1.3rem;
+  }
+  .role {
+    color: var(--kin);
+  }
+  .loc {
+    color: var(--paper-dim);
+    font-size: 0.9rem;
+  }
+  .summary {
+    margin-bottom: 0;
+  }
+  .langs {
+    margin-top: var(--gap);
+  }
+  .langs__title {
+    margin: 0 0 calc(var(--px) * 2);
+    color: var(--paper-dim);
+    font-size: 0.85rem;
+  }
+  .langs ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--px) * 2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .langs li {
+    display: inline-flex;
+    gap: calc(var(--px) * 2);
+    align-items: baseline;
+    padding: var(--px) calc(var(--px) * 3);
+    border: 1px solid var(--ai);
+  }
+  .langs__level {
+    color: var(--paper-dim);
+    font-size: 0.85rem;
+  }
+  /* langue en cours d'apprentissage : même style que les tags « en apprentissage » */
+  .langs li.learning {
+    border-style: dashed;
+    border-color: var(--kin);
+  }
+  .langs li.learning .langs__level {
+    color: var(--kin);
+  }
+  .skills {
+    display: grid;
+    gap: calc(var(--px) * 6);
+  }
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 calc(var(--px) * 5);
+    border-left: var(--border) dotted var(--ai);
+    display: grid;
+    gap: var(--gap-lg);
+  }
+  .timeline > li {
+    position: relative;
+  }
+  .timeline > li::before {
+    content: '◆';
+    position: absolute;
+    left: calc(var(--px) * -7.5);
+    top: 0;
+    color: var(--matcha);
+    background: var(--night-2);
+  }
+  .timeline p {
+    margin: 0;
+  }
+  .when {
+    font-size: 0.8rem;
+    color: var(--paper-dim);
+  }
+  .what {
+    font-size: 1.1rem;
+  }
+  .context {
+    margin-top: calc(var(--px) * 2);
+    font-size: 0.85rem;
+    color: var(--paper-dim);
+    font-style: italic;
+  }
+  .where {
+    margin-top: var(--px);
+    font-size: 0.85rem;
+    color: var(--paper-dim);
+  }
+  .what span {
+    color: var(--kin);
+  }
+</style>

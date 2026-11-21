@@ -1,0 +1,60 @@
+---
+/**
+ * Fenêtre de base de la DA : bordure pixel, onglet de titre optionnel.
+ * Tous les panneaux du site passent par ici.
+ */
+interface Props {
+  title?: string;
+  /** petit symbole affiché devant le titre de l'onglet (icône de fiche, kanji…) */
+  kanji?: string;
+  as?: 'section' | 'div' | 'article' | 'aside';
+  class?: string;
+  reveal?: boolean;
+}
+const { title, kanji, as: Tag = 'section', class: cls, reveal = false } = Astro.props;
+---
+
+<Tag class:list={['window', cls]} data-reveal={reveal ? '' : undefined}>
+  {
+    (title || kanji) && (
+      <header class="window__tab pixel">
+        {kanji && <span class="window__kanji" aria-hidden="true">{kanji}</span>}
+        {title && <span>{title}</span>}
+      </header>
+    )
+  }
+  <div class="window__body">
+    <slot />
+  </div>
+</Tag>
+
+<style>
+  .window {
+    position: relative;
+    background: var(--night-2);
+    border: var(--border) solid var(--paper);
+    /* double liseré façon écran rétro */
+    box-shadow:
+      0 0 0 var(--px) var(--night),
+      0 0 0 calc(var(--px) * 2) var(--night-3);
+    margin-top: calc(var(--px) * 5);
+  }
+  .window__tab {
+    position: absolute;
+    top: calc(var(--px) * -5);
+    left: calc(var(--px) * 4);
+    display: inline-flex;
+    gap: calc(var(--px) * 2);
+    align-items: center;
+    padding: var(--px) calc(var(--px) * 3);
+    background: var(--night);
+    border: var(--border) solid var(--paper);
+    font-size: 0.95rem;
+  }
+  .window__kanji {
+    color: var(--matcha);
+  }
+  .window__body {
+    padding: calc(var(--px) * 7) calc(var(--px) * 5) calc(var(--px) * 5);
+  }
+</style>

@@ -1,0 +1,58 @@
+---
+/**
+ * Liste de projets sous forme de cases d'inventaire (InventoryItem), en grille responsive.
+ * Utilisée par les pages Projets et Jeux. Affiche un message si la liste est vide.
+ */
+import InventoryItem from './InventoryItem.astro';
+import { projectUrl, type Project } from '../lib/projects';
+import { useTranslations } from '../i18n/ui';
+import type { Lang } from '../i18n/config';
+
+interface Props {
+  projects: Project[];
+  lang: Lang;
+  /** largeur minimale d'une case : plus petit = plus de colonnes */
+  min?: string;
+}
+const { projects, lang, min = '340px' } = Astro.props;
+const t = useTranslations(lang);
+---
+
+{
+  projects.length === 0 ? (
+    <p class="empty pixel">{t('inventory.empty')}</p>
+  ) : (
+    <ul class="list" style={`--min: ${min}`}>
+      {projects.map((p) => (
+        <li>
+          <InventoryItem
+            href={projectUrl(p)}
+            title={p.data.title}
+            description={p.data.description}
+            icon={p.data.icon}
+            tags={p.data.tags}
+            status={t(`status.${p.data.status}`)}
+          />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--min)), 1fr));
+    gap: calc(var(--px) * 3);
+  }
+  .list > li {
+    display: grid;
+  }
+  .empty {
+    color: var(--paper-dim);
+    margin: 0;
+  }
+</style>

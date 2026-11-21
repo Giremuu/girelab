@@ -1,0 +1,103 @@
+# CV en français : affiché sur /cv/.
+# Schéma : src/content.config.ts (collection `cv`).
+# Rappel YAML : un texte contenant « : » doit être entre guillemets.
+# Pour une autre langue : copier ce fichier en <code langue>.yaml (ex. ja.yaml).
+profile:
+  name: 'Gwilherm "Giremuu" LE GALLIC'
+  role: Administrateur systèmes et réseaux · Cybersécurité Blue Team · Automatisation Ansible
+  location: Saint-Nazaire (44)
+  summary: >-
+    Côté tech, je suis en cybersécurité côté blue team et sysadmin, mais j'aime
+    toucher à tout. En dehors, je joue aux jeux vidéo (la trilogie Dark Souls en
+    tête) et je regarde des animés / lis des mangas comme Frieren ou NieR.
+  languages:
+    - { label: Français, level: Langue maternelle }
+    - { label: Anglais, level: B2 }
+    - { label: Japonais, level: En cours, learning: true }
+
+skills:
+  # Un thème = un bloc. tags = technos maîtrisées ; learning = en cours d'apprentissage
+  # Pas de noms de produits liés à l'employeur (voir le point sécurité dans la doc)
+  - label: Cybersécurité Blue Team
+    tags:
+      - SIEM
+      - EDR
+      - Bastion d'administration
+      - Réponse à incident (IR)
+      - Fiches réflexe
+      - MITRE ATT&CK
+      - Durcissement CIS
+      - Conformité ANSSI et RGPD
+  - label: Systèmes et réseaux
+    tags:
+      - Linux (Debian)
+      - Windows Server
+      - Active Directory
+      - DNS
+      - DHCP
+      - VMware vSphere
+      - Docker
+      - Pare-feu
+      - Reverse proxy
+      - Supervision
+  - label: Automatisation et cloud
+    tags:
+      - Ansible
+      - Paquets de déploiement logiciel
+      - MDM
+      - Contrôle des applications Windows
+      - Azure
+      - Git (GitHub, GitLab)
+      - Python
+    learning: [Terraform, AWS]
+
+experiences:
+  - title: Administrateur systèmes et réseaux (CDD)
+    org: IDEA Logistique
+    location: Montoir-de-Bretagne (44)
+    start: 08/2026
+    end: 12/2026
+    context: "Périmètre : postes de travail et serveurs Windows et Linux (production, test, développement)"
+    details:
+      - Traitement des incidents de sécurité (réponse à incident) sur les alertes de l'EDR
+      - Participation à la mise en place d'un SIEM avec un SOC prestataire
+      - "Administration de l'EDR : déploiement, mises à jour, exclusions, politiques"
+      - Création d'un audit de connexion des agents EDR à leur console, déployé par paquet logiciel sur l'ensemble du parc
+      - Déploiement d'une politique de contrôle des applications Windows via le MDM
+      - Automatisation du patch management Windows
+      - Création de règles réseau sur le pare-feu
+
+  - title: Alternant administrateur systèmes et réseaux
+    org: IDEA Logistique
+    location: Montoir-de-Bretagne (44)
+    start: 09/2025
+    end: 08/2026
+    details:
+      - Support niveau 3, maintien en condition opérationnelle (MCO) et réponse à incident
+      - Automatisation de l'exposition des serveurs SFTP via reverse proxy
+      - Automatisation du bastion d'administration (création des ressources)
+
+  - title: Technicien support (helpdesk), stage puis alternance
+    org: IDEA Logistique
+    location: Montoir-de-Bretagne (44)
+    start: '2024'
+    end: 08/2025
+    details:
+      - Support utilisateurs niveau 1 et préparation de masters
+      - Construction d'un environnement de test iso-production de l'outil ITSM
+      - Migration de la solution MDM
+
+education:
+  - title: Licence Informatique, option Cybersécurité
+    org: Institut Informatique Appliqué (IIA)
+    location: Saint-Nazaire (44)
+    end: '2026'
+  - title: BTS SIO, option SISR
+    org: Institut Informatique Appliqué (IIA)
+    location: Saint-Nazaire (44)
+    end: '2025'
+
+certifications:
+  - title: MOOC RGPD (L'atelier RGPD)
+    org: CNIL
+    year: '2024'

@@ -1,0 +1,54 @@
+---
+/**
+ * Page Projets (/projets/ et /en/projets/) : fiches `kind: tool` (Outils) et `kind: script` (Scripts),
+ * ou écran « Bientôt disponible » tant qu'il n'y en a aucune.
+ */
+import Base from '../../../layouts/Base.astro';
+import Window from '../../../components/Window.astro';
+import ProjectList from '../../../components/ProjectList.astro';
+import ComingSoon from '../../../components/ComingSoon.astro';
+import { localeParams, langFromParam } from '../../../i18n/config';
+import { useTranslations } from '../../../i18n/ui';
+import { getProjects } from '../../../lib/projects';
+
+export function getStaticPaths() {
+  return localeParams.map((locale) => ({ params: { locale } }));
+}
+
+const lang = langFromParam(Astro.params.locale);
+const t = useTranslations(lang);
+const tools = await getProjects(['tool'], lang);
+const scripts = await getProjects(['script'], lang);
+const empty = tools.length + scripts.length === 0;
+---
+
+<Base lang={lang} title={t('projects.title')} description={t('projects.description')}>
+  <h1 class="page-title">{t('projects.title')}</h1>
+  {
+    empty ? (
+      <ComingSoon title={t('soon.title')} text={t('projects.soon')} />
+    ) : (
+      <div class="cols">
+        {tools.length > 0 && (
+          <Window title={t('projects.tools')}>
+            <ProjectList projects={tools} lang={lang} min="480px" />
+          </Window>
+        )}
+        {scripts.length > 0 && (
+          <Window title={t('projects.scripts')}>
+            <ProjectList projects={scripts} lang={lang} min="480px" />
+          </Window>
+        )}
+      </div>
+    )
+  }
+</Base>
+
+<style>
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
+    gap: var(--gap-lg);
+    align-items: start;
+  }
+</style>

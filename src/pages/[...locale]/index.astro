@@ -1,0 +1,45 @@
+---
+/**
+ * Page d'accueil (/ et /en/).
+ * Cadre de dialogue (portrait + texte de Giremuu) puis menu au cœur vers les 4 sections.
+ * Texte : 'home.intro' dans src/i18n/ui.ts. Ordre des boutons : tableau `choices` ci-dessous.
+ */
+import Base from '../../layouts/Base.astro';
+import DialogBox from '../../components/DialogBox.astro';
+import HeartMenu, { type Choice } from '../../components/HeartMenu.astro';
+import pfp from '../../assets/pfp.png';
+import { localeParams, langFromParam } from '../../i18n/config';
+import { useTranslations } from '../../i18n/ui';
+import { localizePath } from '../../i18n/routes';
+
+export function getStaticPaths() {
+  return localeParams.map((locale) => ({ params: { locale } }));
+}
+
+const lang = langFromParam(Astro.params.locale);
+const t = useTranslations(lang);
+const L = (p: string) => localizePath(p, lang);
+
+const choices: Choice[] = [
+  { href: L('/cv/'), label: t('home.cmd.cv') },
+  { href: L('/projets/'), label: t('home.cmd.projects') },
+  { href: L('/jeux/'), label: t('home.cmd.games') },
+  { href: L('/contact/'), label: t('home.cmd.contact') },
+];
+---
+
+<Base lang={lang}>
+  <h1 class="visually-hidden">{t('home.h1')}</h1>
+  <div class="home">
+    <DialogBox lines={[t('home.intro').join(' ')]} speaker="Giremuu" portrait={pfp} skipLabel={t('home.skip')} startLabel={t('home.start')} />
+    <HeartMenu choices={choices} hint={t('home.hint')} label={t('home.menu')} />
+  </div>
+</Base>
+
+<style>
+  .home {
+    display: grid;
+    gap: clamp(24px, 4vw, 48px);
+    padding-top: clamp(8px, 6vh, 72px);
+  }
+</style>

@@ -1,0 +1,86 @@
+---
+/**
+ * Bouton on/off pour les sons d'interface (kind="sound") ou la musique (kind="music").
+ * Coupé par défaut ; la préférence est mémorisée. Sur mobile, seul l'icône + ON/OFF reste.
+ */
+interface Props {
+  kind: 'sound' | 'music';
+  label: string;
+}
+const { kind, label } = Astro.props;
+const icon = kind === 'sound' ? '♪' : '♫';
+---
+
+<button type="button" class="atoggle pixel" data-audio-toggle={kind} aria-pressed="false" aria-label={label}>
+  <span aria-hidden="true">{icon}</span>
+  <span class="atoggle__label" aria-hidden="true">{label} :</span>
+  <span class="atoggle__on" aria-hidden="true">ON</span>
+  <span class="atoggle__off" aria-hidden="true">OFF</span>
+</button>
+
+<script>
+  import { isSoundOn, setSound, confirm } from '../scripts/sound';
+  import { isMusicOn, setMusic, resumeMusic } from '../scripts/music';
+
+  const api = {
+    sound: { get: isSoundOn, set: setSound },
+    music: { get: isMusicOn, set: setMusic },
+  };
+
+  let resumed = false;
+
+  document.addEventListener('astro:page-load', () => {
+    // la musique ne redémarre qu'une fois (elle continue ensuite entre les pages)
+    if (!resumed) {
+      resumed = true;
+      resumeMusic();
+    }
+    document.querySelectorAll<HTMLButtonElement>('[data-audio-toggle]').forEach((btn) => {
+      if (btn.dataset.ready) return;
+      btn.dataset.ready = '1';
+      const { get, set } = api[btn.dataset.audioToggle as 'sound' | 'music'];
+      const sync = () => btn.setAttribute('aria-pressed', String(get()));
+      sync();
+      btn.addEventListener('click', () => {
+        set(!get());
+        sync();
+        confirm();
+      });
+    });
+  });
+</script>
+
+<style>
+  .atoggle {
+    display: inline-flex;
+    gap: calc(var(--px) * 1.5);
+    background: none;
+    border: var(--border) solid var(--night-3);
+    color: var(--paper-dim);
+    padding: var(--px) calc(var(--px) * 3);
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .atoggle:hover {
+    border-color: var(--paper);
+    color: var(--paper);
+  }
+  .atoggle__on {
+    display: none;
+  }
+  .atoggle[aria-pressed='true'] {
+    color: var(--kin);
+  }
+  .atoggle[aria-pressed='true'] .atoggle__on {
+    display: inline;
+  }
+  .atoggle[aria-pressed='true'] .atoggle__off {
+    display: none;
+  }
+  @media (max-width: 600px) {
+    .atoggle__label {
+      display: none;
+    }
+  }
+</style>

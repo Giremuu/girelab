@@ -1,0 +1,60 @@
+---
+/** Écran « Bientôt disponible » affiché quand une section n'a encore aucun contenu. */
+interface Props {
+  title: string;
+  text: string;
+}
+const { title, text } = Astro.props;
+---
+
+<div class="soon">
+  <p class="soon__title pixel">{title}<span class="soon__dots" aria-hidden="true"></span></p>
+  <p class="soon__text">{text}</p>
+</div>
+
+<style>
+  .soon {
+    display: grid;
+    justify-items: center;
+    gap: var(--gap);
+    padding: clamp(32px, 8vh, 96px) var(--gap);
+    text-align: center;
+    background: var(--black);
+    border: var(--border) solid var(--paper);
+    box-shadow:
+      0 0 0 var(--px) var(--night),
+      0 0 0 calc(var(--px) * 2) var(--night-3);
+  }
+  .soon__title {
+    margin: 0;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--matcha);
+  }
+  /* points de suspension animés, façon chargement de jeu */
+  .soon__dots::after {
+    content: '';
+    display: inline-block;
+    width: 3ch;
+    text-align: left;
+    animation: dots 1.6s steps(4) infinite;
+  }
+  @keyframes dots {
+    0% {
+      content: '';
+    }
+    25% {
+      content: '.';
+    }
+    50% {
+      content: '..';
+    }
+    75% {
+      content: '...';
+    }
+  }
+  .soon__text {
+    margin: 0;
+    color: var(--paper-dim);
+    max-width: 50ch;
+  }
+</style>

@@ -1,0 +1,100 @@
+# CV en anglais : affiché sur /en/cv/.
+# Garder la même structure que fr.yaml.
+profile:
+  name: 'Gwilherm "Giremuu" LE GALLIC'
+  role: Systems & Network Administrator · Blue Team Cybersecurity · Ansible Automation
+  location: Saint-Nazaire, France
+  summary: >-
+    On the tech side, I work in blue team cybersecurity and as a sysadmin, but I
+    like to dabble in everything. Outside of that, I love video games like the
+    Dark Souls trilogy, and I watch anime / read manga too, like Frieren or NieR.
+  languages:
+    - { label: French, level: Native }
+    - { label: English, level: B2 }
+    - { label: Japanese, level: Learning, learning: true }
+
+skills:
+  # One area = one block. tags = technologies I use; learning = currently learning.
+  # No product names tied to the employer (see the security notes)
+  - label: Blue Team Cybersecurity
+    tags:
+      - SIEM
+      - EDR
+      - Privileged access bastion
+      - Incident response (IR) and playbooks
+      - MITRE ATT&CK
+      - CIS hardening
+      - ANSSI and GDPR compliance
+  - label: Systems & Networks
+    tags:
+      - Linux (Debian)
+      - Windows Server
+      - Active Directory
+      - DNS
+      - DHCP
+      - VMware vSphere
+      - Docker
+      - Firewall
+      - Reverse proxy
+      - Monitoring
+  - label: Automation & Cloud
+    tags:
+      - Ansible
+      - Software deployment packaging
+      - MDM
+      - Windows application control
+      - Azure
+      - Git (GitHub, GitLab)
+      - Python
+    learning: [Terraform, AWS]
+
+experiences:
+  - title: Systems & Network Administrator (fixed-term contract)
+    org: IDEA Logistique
+    location: Montoir-de-Bretagne, France
+    start: 08/2026
+    end: 12/2026
+    context: "Scope: Windows and Linux workstations and servers (production, test, development)"
+    details:
+      - Handled security incidents (incident response) on EDR alerts
+      - Took part in deploying a SIEM with a managed SOC provider
+      - "Administered the EDR: deployment, updates, exclusions, policies"
+      - Built an audit of EDR agent connectivity to the console, deployed as a software package across the whole estate
+      - Deployed a Windows application control policy through the MDM
+      - Automated Windows patch management
+      - Created network rules on the firewall
+
+  - title: Apprentice Systems & Network Administrator
+    org: IDEA Logistique
+    location: Montoir-de-Bretagne, France
+    start: 09/2025
+    end: 08/2026
+    details:
+      - Level 3 support, IT operations and maintenance, incident response
+      - Automated the exposure of SFTP servers through a reverse proxy
+      - Automated the privileged access bastion (resource creation)
+
+  - title: IT Support Technician (helpdesk), intern then apprentice
+    org: IDEA Logistique
+    location: Montoir-de-Bretagne, France
+    start: '2024'
+    end: 08/2025
+    details:
+      - Level 1 user support and system image (master) preparation
+      - Built a production-like test environment for the ITSM tool
+      - Migrated the MDM solution
+
+education:
+  - title: Bachelor's degree in Computer Science, Cybersecurity track
+    org: Institut Informatique Appliqué (IIA)
+    location: Saint-Nazaire, France
+    end: '2026'
+  - title: BTS SIO SISR (2-year IT diploma, Systems & Networks)
+    org: Institut Informatique Appliqué (IIA)
+    location: Saint-Nazaire, France
+    end: '2025'
+
+certifications:
+  - title: GDPR MOOC (L'atelier RGPD)
+    org: CNIL (French data protection authority)
+    year: '2024'

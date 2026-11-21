@@ -1,0 +1,118 @@
+---
+/**
+ * Sélecteur de langue : menu déroulant (scalable à N langues).
+ * Chaque entrée pointe vers la même page dans l'autre langue.
+ */
+import { languages, langs, type Lang } from '../i18n/config';
+import { localizePath } from '../i18n/routes';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  basePath: string;
+}
+const { lang, basePath } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<details class="lang" data-lang-switcher>
+  <summary class="pixel" aria-label={t('lang.label')}>
+    {languages[lang].short}
+    <span aria-hidden="true" class="lang__caret">▾</span>
+  </summary>
+  <ul>
+    {
+      langs.map((l) => (
+        <li>
+          <a
+            href={localizePath(basePath, l)}
+            hreflang={l}
+            lang={languages[l].htmlLang}
+            class="pixel"
+            aria-current={l === lang ? 'true' : undefined}
+          >
+            <span class="lang__short">{languages[l].short}</span> {languages[l].label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</details>
+
+<script>
+  // Ferme le menu au clic extérieur / Échap
+  document.addEventListener('astro:page-load', () => {
+    const el = document.querySelector<HTMLDetailsElement>('[data-lang-switcher]');
+    if (!el) return;
+    const close = (e: Event) => {
+      if (e instanceof KeyboardEvent ? e.key === 'Escape' : !el.contains(e.target as Node)) el.open = false;
+    };
+    document.addEventListener('click', close);
+    document.addEventListener('keydown', close);
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        document.removeEventListener('click', close);
+        document.removeEventListener('keydown', close);
+      },
+      { once: true },
+    );
+  });
+</script>
+
+<style>
+  .lang {
+    position: relative;
+  }
+  summary {
+    list-style: none;
+    display: flex;
+    gap: calc(var(--px) * 2);
+    align-items: center;
+    padding: var(--px) calc(var(--px) * 3);
+    border: var(--border) solid var(--night-3);
+    color: var(--paper-dim);
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary:hover,
+  .lang[open] summary {
+    border-color: var(--paper);
+    color: var(--paper);
+  }
+  .lang__caret {
+    font-size: 0.7em;
+  }
+  ul {
+    position: absolute;
+    right: 0;
+    top: calc(100% + var(--px));
+    z-index: 20;
+    min-width: 160px;
+    margin: 0;
+    padding: var(--px);
+    list-style: none;
+    background: var(--night);
+    border: var(--border) solid var(--paper);
+  }
+  a {
+    display: flex;
+    gap: calc(var(--px) * 2);
+    padding: calc(var(--px) * 2);
+    color: var(--paper);
+    font-size: 0.85rem;
+  }
+  a:hover,
+  a[aria-current='true'] {
+    background: var(--night-3);
+    color: var(--kin);
+  }
+  .lang__short {
+    color: var(--paper-dim);
+    min-width: 2ch;
+  }
+</style>

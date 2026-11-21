@@ -1,0 +1,354 @@
+---
+/**
+ * Cadre de choix : des boutons (2 par ligne par défaut, réglable avec `columns`) et un cœur rouge
+ * qui remplace le curseur. Utilisé sur l'accueil et la page Contact.
+ * - Souris : le cœur suit le pointeur, reste enfermé dans le cadre ; le bouton
+ *   sous le cœur s'allume, clic = aller à la page.
+ * - Clavier : flèches = le cœur saute de bouton en bouton, Entrée / Z = valider.
+ * - Tactile : le cœur saute là où on touche, puis on est redirigé.
+ * Sans JS : de simples liens.
+ */
+export interface Choice {
+  /** null = lien pas encore renseigné : bouton grisé, ignoré par le cœur */
+  href: string | null;
+  label: string;
+  /** petit texte sous le libellé (ex. pseudo) */
+  sub?: string;
+}
+interface Props {
+  choices: Choice[];
+  hint: string;
+  label: string;
+  /** nombre de boutons par ligne (accueil : 2) */
+  columns?: number;
+  /** longueur max d'un bouton */
+  width?: string;
+  /** écart entre les colonnes */
+  gap?: string;
+}
+const { choices, hint, label, columns = 2, width = '400px', gap = 'min(400px, 20vw)' } = Astro.props;
+
+// Cœur pixel 11×10, rouge plein
+const heart = [
+  '.###...###.',
+  '#####.#####',
+  '###########',
+  '###########',
+  '###########',
+  '.#########.',
+  '..#######..',
+  '...#####...',
+  '....###....',
+  '.....#.....',
+];
+const heartCells = heart.flatMap((row, y) => [...row].map((c, x) => ({ x, y, c })).filter((p) => p.c === '#'));
+---
+
+<nav
+  class:list={['hmenu', { 'hmenu--wide': columns > 2 }]}
+  aria-label={label}
+  data-hmenu
+  style={`--cols: ${columns}; --btn-w: ${width}; --col-gap: ${gap};`}
+>
+  <ul class="hmenu__list">
+    {
+      choices.map((c, i) => (
+        <li>
+          {c.href ? (
+            <a
+              href={c.href}
+              class="hbtn pixel"
+              data-index={i}
+              {...(/^https?:/.test(c.href) ? { target: '_blank', rel: 'noopener me' } : {})}
+            >
+              <span class="hbtn__text">
+                <span class="hbtn__label">{c.label}</span>
+                {c.sub && <span class="hbtn__sub">{c.sub}</span>}
+              </span>
+            </a>
+          ) : (
+            <span class="hbtn hbtn--off pixel">
+              <span class="hbtn__text">
+                <span class="hbtn__label">{c.label}</span>
+                {c.sub && <span class="hbtn__sub">{c.sub}</span>}
+              </span>
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+
+  <svg class="heart" data-heart viewBox="0 0 11 10" width="44" height="40" aria-hidden="true" shape-rendering="crispEdges">
+    {heartCells.map((p) => <rect x={p.x} y={p.y} width="1.02" height="1.02" />)}
+  </svg>
+
+  <p class="hmenu__hint pixel" aria-hidden="true">{hint}</p>
+</nav>
+
+<script>
+  import { gsap } from 'gsap';
+  import { navigate } from 'astro:transitions/client';
+  import { move, confirm } from '../scripts/sound';
+
+  function init() {
+    const root = document.querySelector<HTMLElement>('[data-hmenu]');
+    if (!root || root.dataset.ready) return;
+    root.dataset.ready = '1';
+
+    const btns = [...root.querySelectorAll<HTMLAnchorElement>('a.hbtn')];
+    const heart = root.querySelector<SVGSVGElement>('[data-heart]')!;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const B = 4; // épaisseur de la bordure du cadre
+    let current = -1;
+    let leaving = false;
+    let pos = { x: 0, y: 0 }; // centre du cœur, relatif au cadre
+
+    const xTo = gsap.quickTo(heart, 'x', { duration: reduce ? 0 : 0.08, ease: 'power2.out' });
+    const yTo = gsap.quickTo(heart, 'y', { duration: reduce ? 0 : 0.08, ease: 'power2.out' });
+
+    /** Déplace le cœur (centre) en restant dans le cadre ; met à jour le bouton survolé. */
+    const moveHeart = (x: number, y: number, instant = false) => {
+      const w = heart.clientWidth;
+      const h = heart.clientHeight;
+      pos = {
+        x: Math.min(Math.max(x, B + w / 2), root.clientWidth - B - w / 2),
+        y: Math.min(Math.max(y, B + h / 2), root.clientHeight - B - h / 2),
+      };
+      if (instant) gsap.set(heart, { x: pos.x - w / 2, y: pos.y - h / 2 });
+      else {
+        xTo(pos.x - w / 2);
+        yTo(pos.y - h / 2);
+      }
+      hitTest();
+    };
+
+    const rel = (el: Element) => {
+      const r = el.getBoundingClientRect();
+      const base = root.getBoundingClientRect();
+      return { left: r.left - base.left, top: r.top - base.top, width: r.width, height: r.height };
+    };
+
+    /** Quel bouton est sous le cœur ? */
+    const hitTest = () => {
+      const i = btns.findIndex((b) => {
+        const r = rel(b);
+        return pos.x >= r.left && pos.x <= r.left + r.width && pos.y >= r.top && pos.y <= r.top + r.height;
+      });
+      if (i !== current) {
+        current = i;
+        btns.forEach((b, j) => b.setAttribute('aria-current', String(j === current)));
+        if (i >= 0) move();
+      }
+    };
+
+    /** Place le cœur juste à gauche du libellé d'un bouton (clavier). */
+    const slot = (i: number) => {
+      const r = rel(btns[i].querySelector('.hbtn__label')!);
+      return { x: r.left - heart.clientWidth, y: r.top + r.height / 2 };
+    };
+    const snapTo = (i: number) => {
+      const s = slot((i + btns.length) % btns.length);
+      moveHeart(s.x, s.y);
+    };
+
+    const go = (i: number) => {
+      if (leaving || i < 0) return;
+      leaving = true;
+      confirm();
+      const link = btns[i];
+      const url = new URL(link.href);
+      const follow = () => {
+        if (url.protocol === 'mailto:') {
+          location.href = link.href; // ouvre la messagerie
+        } else if (url.origin !== location.origin) {
+          window.open(link.href, '_blank', 'noopener'); // lien externe : nouvel onglet
+        } else {
+          void navigate(link.href); // page du site
+          return;
+        }
+        // on reste sur la page : le menu redevient utilisable
+        leaving = false;
+        gsap.set(link, { opacity: 1 });
+      };
+      gsap
+        .timeline({ onComplete: follow })
+        .to(heart, { scale: 1.5, duration: reduce ? 0 : 0.1, ease: 'steps(2)' })
+        .to(heart, { scale: 1, duration: reduce ? 0 : 0.1, ease: 'steps(2)' })
+        .to(btns[i], { opacity: 0.4, duration: reduce ? 0 : 0.06, repeat: reduce ? 0 : 3, yoyo: true, ease: 'steps(1)' });
+    };
+
+    // --- Souris / tactile ---
+    root.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || leaving) return;
+      const base = root.getBoundingClientRect();
+      moveHeart(e.clientX - base.left, e.clientY - base.top);
+    });
+    root.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      const base = root.getBoundingClientRect();
+      moveHeart(e.clientX - base.left, e.clientY - base.top);
+    });
+    btns.forEach((b, i) =>
+      b.addEventListener('click', (e) => {
+        e.preventDefault();
+        go(i);
+      }),
+    );
+
+    // --- Clavier ---
+    const onKey = (e: KeyboardEvent) => {
+      if (!document.body.contains(root) || !root.hasAttribute('data-active')) return;
+      const k = e.key;
+      const cols = getComputedStyle(root.querySelector('.hmenu__list')!).gridTemplateColumns.split(' ').length;
+      const from = current < 0 ? 0 : current;
+      if (k === 'ArrowRight') snapTo(current < 0 ? 0 : from + 1);
+      else if (k === 'ArrowLeft') snapTo(current < 0 ? 0 : from - 1);
+      else if (k === 'ArrowDown') snapTo(current < 0 ? 0 : from + (cols < btns.length ? cols : 1));
+      else if (k === 'ArrowUp') snapTo(current < 0 ? 0 : from - (cols < btns.length ? cols : 1));
+      else if (k === 'Enter' || k === 'z' || k === 'Z' || k === ' ') {
+        if ((e.target as HTMLElement).closest('a, button') && !root.contains(e.target as Node)) return;
+        go(current);
+      } else return;
+      e.preventDefault();
+    };
+    document.addEventListener('keydown', onKey);
+    const onResize = () => current >= 0 && snapTo(current);
+    addEventListener('resize', onResize);
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        document.removeEventListener('keydown', onKey);
+        removeEventListener('resize', onResize);
+      },
+      { once: true },
+    );
+
+    // --- Ouverture à la fin du dialogue ---
+    const open = () => {
+      if (root.hasAttribute('data-active')) return;
+      root.setAttribute('data-active', '');
+      gsap.fromTo(
+        root,
+        { autoAlpha: 0, scaleY: 0.1 },
+        {
+          autoAlpha: 1,
+          scaleY: 1,
+          duration: reduce ? 0 : 0.3,
+          ease: 'steps(5)',
+          onComplete: () => {
+            // le cœur apparaît sur le premier bouton
+            const s = slot(0);
+            moveHeart(s.x, s.y, true);
+            gsap.fromTo(heart, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: 'steps(2)' });
+          },
+        },
+      );
+    };
+    if (document.querySelector('[data-dialog]:not([data-done])')) {
+      document.addEventListener('dialog:done', open, { once: true });
+      window.setTimeout(open, 15000);
+    } else open();
+  }
+
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .hmenu {
+    position: relative;
+    padding: clamp(20px, 3vw, 30px);
+    background: var(--black);
+    border: var(--border) solid var(--paper);
+    box-shadow:
+      0 0 0 var(--px) var(--night),
+      0 0 0 calc(var(--px) * 2) var(--night-3);
+    transform-origin: center;
+  }
+  :global(.js) .hmenu {
+    visibility: hidden;
+  }
+  /* le cœur remplace le curseur dans le cadre (souris uniquement) */
+  @media (pointer: fine) {
+    :global(.js) .hmenu,
+    :global(.js) .hmenu * {
+      cursor: none;
+    }
+  }
+  .hmenu__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    /* colonnes centrées dans la box. Valeurs réglées par page via les props
+       columns / width / gap (accueil : 2 colonnes, 400px, min(400px, 20vw)) */
+    grid-template-columns: repeat(var(--cols), minmax(0, var(--btn-w))); /* LONGUEUR DES BLOCS */
+    justify-content: center;
+    column-gap: var(--col-gap); /* ÉCART ENTRE GAUCHE ET DROITE */
+    row-gap: clamp(24px, 4vw, 48px); /* écart entre la ligne du haut et celle du bas */
+  }
+  .hbtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--px) * 3);
+    padding: calc(var(--px) * 4) calc(var(--px) * 4);
+    border: var(--border) solid var(--matcha);
+    color: var(--matcha);
+    font-size: clamp(1rem, 1.8vw, 1.4rem);
+    letter-spacing: 0.08em;
+    outline: none;
+    --picon-accent: var(--paper);
+  }
+  .hbtn__text {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--px);
+  }
+  .hbtn__sub {
+    font-size: 0.65em;
+    letter-spacing: 0;
+    color: var(--paper-dim);
+  }
+  .hbtn--off {
+    border-style: dashed;
+    opacity: 0.45;
+  }
+  .hbtn[aria-current='true'] {
+    color: var(--kin);
+    border-color: var(--kin);
+  }
+  .hbtn:focus-visible {
+    outline: var(--border) dashed var(--kin);
+    outline-offset: var(--px);
+  }
+
+  .heart {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    fill: #ff0000;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .hmenu__hint {
+    margin: calc(var(--px) * 5) 0 0;
+    text-align: center;
+    color: var(--paper-dim);
+    font-size: 0.75rem;
+  }
+  @media (pointer: coarse) {
+    .hmenu__hint {
+      display: none;
+    }
+  }
+  /* 3 boutons ou plus par ligne : empilés sur petit écran */
+  @media (max-width: 720px) {
+    .hmenu--wide .hmenu__list {
+      grid-template-columns: minmax(0, var(--btn-w));
+    }
+  }
+</style>
