@@ -1,3 +1,12 @@
+# Build et déploiement du site sur GitHub Pages.
+# Documentation : Documentations/07-mise-en-ligne.md
+#
+# Sécurité :
+# - chaque job ne reçoit que les droits dont il a besoin (moindre privilège) ;
+# - les actions sont épinglées par empreinte (SHA) et non par tag : un tag peut être déplacé
+#   vers du code malveillant, un SHA non. Le commentaire indique la version correspondante.
+#   Pour mettre à jour : remplacer le SHA par celui de la nouvelle version.
+
 name: Deploy
 
 on:
@@ -5,10 +14,8 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+# Aucun droit par défaut : chaque job déclare les siens
+permissions: {}
 
 concurrency:
   group: pages
@@ -17,14 +24,18 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # lire le code du repo
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false # ne pas laisser le jeton GitHub sur la machine de build
 
       # Plus tard : récupérer ici le build web de chaque jeu (Release d'un autre repo)
       # et le copier dans public/games/<slug>/ avant le build Astro.
 
       - name: Build Astro
-        uses: withastro/action@v6
+        uses: withastro/action@a8b97df764791eb61fbf3338ef713b0e61ae05c5 # v6
 
   deploy:
     # Inactif tant que la variable de repo PAGES_ENABLED n'est pas à "true"
@@ -33,10 +44,13 @@ jobs:
     if: vars.PAGES_ENABLED == 'true'
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write # publier sur GitHub Pages
+      id-token: write # prouver à GitHub Pages que le déploiement vient bien de ce workflow
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
