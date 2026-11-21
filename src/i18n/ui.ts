@@ -25,7 +25,7 @@ const fr = {
   // Accueil
   'home.h1': 'girelab — le labo de Giremuu',
   'home.intro': [
-    "Oh, un visiteur ? Ça faisait longtemps... Bienvenue au Girelab ! Je range ici tout ce que je construis et qui mérite d'être accessible : des outils, des projets, mon CV... et des jeux !",
+    'Oh, un visiteur ? Bienvenue au Girelab !',
   ],
   'home.skip': 'Passer ≫',
   'home.start': '▶ Clique ou appuie sur une touche…',
@@ -76,11 +76,11 @@ const fr = {
 
   // Contact
   'contact.description': 'Me contacter.',
-  'contact.intro': 'Tu veux me contacter ? Je répondrai dès que possible !',
+  'contact.intro': 'Tu veux me contacter ? Je répondrai dès que possible sur LinkedIn !',
   'contact.todo': 'à compléter',
 
   // 404
-  'notfound.text': "Il n'y a rien ici. Juste le bruit du vent dans les bambous.",
+  'notfound.text': "Cette zone du labo n'existe pas, ou plus. Revenez à l'accueil pour reprendre la visite !",
   'notfound.back': "♦ Retourner à l'accueil",
 };
 
@@ -102,7 +102,7 @@ const en: Dict = {
 
   'home.h1': "girelab — Giremuu's lab",
   'home.intro': [
-    "Oh, a visitor? It's been a while... Welcome to Girelab! This is where I keep everything I build that deserves to be shared: tools, projects, my resume... and games!",
+    'Oh, a visitor? Welcome to Girelab!',
   ],
   'home.skip': 'Skip ≫',
   'home.start': '▶ Click or press any key…',
@@ -150,10 +150,10 @@ const en: Dict = {
   'project.fallback': 'This page is not translated yet: showing the French version.',
 
   'contact.description': 'Get in touch.',
-  'contact.intro': "Want to reach me? I'll get back to you as soon as possible!",
+  'contact.intro': "Want to get in touch? I'll get back to you as soon as possible on LinkedIn!",
   'contact.todo': 'to fill in',
 
-  'notfound.text': 'Nothing here. Just the wind in the bamboo.',
+  'notfound.text': "This area of the lab doesn't exist, or no longer does. Head back home to continue your visit!",
   'notfound.back': '♦ Back to home',
 };
 

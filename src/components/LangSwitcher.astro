@@ -1,7 +1,9 @@
 ---
 /**
- * Sélecteur de langue : menu déroulant (scalable à N langues).
- * Chaque entrée pointe vers la même page dans l'autre langue.
+ * Sélecteur de langue du header : un bouton bien visible avec le drapeau de la langue en cours,
+ * qui ouvre la liste des langues (drapeau + nom). Chaque entrée mène à la même page dans sa langue.
+ * Drapeaux en pixel art (SVG ci-dessous) : les émojis drapeaux ne s'affichent pas sur Windows.
+ * Ajouter une langue : src/i18n/config.ts + son drapeau dans `flags`.
  */
 import { languages, langs, type Lang } from '../i18n/config';
 import { localizePath } from '../i18n/routes';
@@ -13,11 +15,24 @@ interface Props {
 }
 const { lang, basePath } = Astro.props;
 const t = useTranslations(lang);
+
+// Drapeaux 24×16, formes simples à bords nets (style pixel)
+const flags: Record<string, string> = {
+  fr: `<rect width="8" height="16" fill="#002395"/><rect x="8" width="8" height="16" fill="#fff"/><rect x="16" width="8" height="16" fill="#ed2939"/>`,
+  en: `<rect width="24" height="16" fill="#012169"/>
+       <path d="M0 0L24 16M24 0L0 16" stroke="#fff" stroke-width="3"/>
+       <path d="M0 0L24 16M24 0L0 16" stroke="#c8102e" stroke-width="1"/>
+       <rect x="10" width="4" height="16" fill="#fff"/><rect y="6" width="24" height="4" fill="#fff"/>
+       <rect x="11" width="2" height="16" fill="#c8102e"/><rect y="7" width="24" height="2" fill="#c8102e"/>`,
+  ja: `<rect width="24" height="16" fill="#fff"/><circle cx="12" cy="8" r="4.5" fill="#bc002d"/>`,
+};
+const flag = (l: string) => flags[l] ?? '';
 ---
 
 <details class="lang" data-lang-switcher>
-  <summary class="pixel" aria-label={t('lang.label')}>
-    {languages[lang].short}
+  <summary class="pixel" aria-label={`${t('lang.label')} : ${languages[lang].label}`}>
+    <svg class="flag" viewBox="0 0 24 16" width="24" height="16" aria-hidden="true" set:html={flag(lang)} />
+    <span>{languages[lang].short}</span>
     <span aria-hidden="true" class="lang__caret">▾</span>
   </summary>
   <ul>
@@ -31,7 +46,13 @@ const t = useTranslations(lang);
             class="pixel"
             aria-current={l === lang ? 'true' : undefined}
           >
-            <span class="lang__short">{languages[l].short}</span> {languages[l].label}
+            <svg class="flag" viewBox="0 0 24 16" width="24" height="16" aria-hidden="true" set:html={flag(l)} />
+            <span class="lang__name">{languages[l].label}</span>
+            {l === lang && (
+              <span class="lang__check" aria-hidden="true">
+                ✓
+              </span>
+            )}
           </a>
         </li>
       ))
@@ -64,15 +85,16 @@ const t = useTranslations(lang);
   .lang {
     position: relative;
   }
+  /* Bouton : plus grand que Son / Musique, bordure verte, texte blanc */
   summary {
     list-style: none;
     display: flex;
     gap: calc(var(--px) * 2);
     align-items: center;
-    padding: var(--px) calc(var(--px) * 3);
-    border: var(--border) solid var(--night-3);
-    color: var(--paper-dim);
-    font-size: 0.8rem;
+    padding: calc(var(--px) * 2) calc(var(--px) * 3);
+    border: var(--border) solid var(--matcha);
+    color: var(--paper);
+    font-size: 1rem;
     cursor: pointer;
     white-space: nowrap;
   }
@@ -81,18 +103,25 @@ const t = useTranslations(lang);
   }
   summary:hover,
   .lang[open] summary {
-    border-color: var(--paper);
-    color: var(--paper);
+    border-color: var(--kin);
+    color: var(--kin);
+  }
+  .flag {
+    display: block;
+    flex: none;
+    outline: 1px solid var(--night-3);
+    shape-rendering: crispEdges;
   }
   .lang__caret {
-    font-size: 0.7em;
+    font-size: 0.75em;
   }
+  /* Liste des langues */
   ul {
     position: absolute;
     right: 0;
     top: calc(100% + var(--px));
     z-index: 20;
-    min-width: 160px;
+    min-width: 190px;
     margin: 0;
     padding: var(--px);
     list-style: none;
@@ -101,18 +130,21 @@ const t = useTranslations(lang);
   }
   a {
     display: flex;
-    gap: calc(var(--px) * 2);
-    padding: calc(var(--px) * 2);
+    gap: calc(var(--px) * 3);
+    align-items: center;
+    padding: calc(var(--px) * 2) calc(var(--px) * 3);
     color: var(--paper);
-    font-size: 0.85rem;
+    font-size: 0.95rem;
   }
   a:hover,
-  a[aria-current='true'] {
+  a:focus-visible {
     background: var(--night-3);
     color: var(--kin);
   }
-  .lang__short {
-    color: var(--paper-dim);
-    min-width: 2ch;
+  a[aria-current='true'] {
+    color: var(--matcha);
+  }
+  .lang__check {
+    margin-left: auto;
   }
 </style>

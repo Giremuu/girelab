@@ -1,46 +1,67 @@
 ---
 /**
- * Page d'erreur 404. GitHub Pages ne sert qu'un seul 404.html :
- * le texte est affiché en français et en anglais.
+ * Page d'erreur 404, dans le même style que l'accueil :
+ * gros « 404 » pixel, cadre de dialogue de Giremuu, menu au cœur vers l'accueil.
+ * GitHub Pages ne sert qu'un seul 404.html pour toutes les langues : la page est en anglais.
+ * Texte : 'notfound.text' (version anglaise) dans src/i18n/ui.ts.
  */
 import Base from '../layouts/Base.astro';
-import Window from '../components/Window.astro';
+import DialogBox from '../components/DialogBox.astro';
+import HeartMenu, { type Choice } from '../components/HeartMenu.astro';
+import pfp from '../assets/pfp.png';
 import { useTranslations } from '../i18n/ui';
 
-const fr = useTranslations('fr');
 const en = useTranslations('en');
+
+const choices: Choice[] = [{ href: '/en/', label: 'HOME' }];
 ---
 
-<Base title="404">
+<Base lang="en" title="404">
   <div class="lost">
-    <Window kanji="迷" title="404">
-      <p class="pixel big">…</p>
-      <p class="pixel">{fr('notfound.text')}</p>
-      <p class="pixel en" lang="en">{en('notfound.text')}</p>
-      <p class="links">
-        <a href="/" class="pixel">{fr('notfound.back')}</a>
-        <a href="/en/" class="pixel" lang="en">{en('notfound.back')}</a>
-      </p>
-    </Window>
+    <h1 class="code pixel" aria-label="404">404</h1>
+    <DialogBox
+      id="404"
+      lines={[en('notfound.text')]}
+      speaker="Giremuu"
+      portrait={pfp}
+      skipLabel={en('home.skip')}
+      startLabel={en('home.start')}
+    />
+    <HeartMenu choices={choices} hint={en('home.hint')} label="Home" columns={1} />
   </div>
 </Base>
 
 <style>
   .lost {
-    max-width: 640px;
-    margin: 10vh auto 0;
+    display: grid;
+    gap: clamp(24px, 4vw, 48px);
+    padding-top: clamp(8px, 4vh, 48px);
   }
-  .big {
-    font-size: 2.5rem;
+  /* Gros « 404 » pixel qui clignote doucement, comme un écran de jeu */
+  .code {
     margin: 0;
+    text-align: center;
+    font-size: clamp(4rem, 14vw, 9rem);
+    line-height: 1;
     color: var(--matcha);
+    animation: flicker 2.4s steps(1) infinite;
   }
-  .en {
-    color: var(--paper-dim);
-  }
-  .links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--gap-lg);
+  @keyframes flicker {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    92% {
+      opacity: 1;
+    }
+    94% {
+      opacity: 0.35;
+    }
+    96% {
+      opacity: 1;
+    }
+    98% {
+      opacity: 0.6;
+    }
   }
 </style>

@@ -6,7 +6,7 @@
 - L'**anglais** est préfixé : `/en/`, `/en/cv/`, `/en/contact/`…
 - Les **noms de section sont traduits** dans l'adresse : `/projets/` → `/en/projects/`, `/jeux/` → `/en/games/`,
   `/mentions-legales/` → `/en/legal-notice/`.
-- Le sélecteur **FR ▾** du header renvoie vers **la même page** dans l'autre langue.
+- Le bouton de langue du header (drapeau + code, ex. 🇫🇷 FR ▾) ouvre la liste des langues ; chaque entrée renvoie vers **la même page** dans sa langue.
 - Chaque page déclare ses versions dans les autres langues (`hreflang`), pour les moteurs de recherche.
 
 Les pages ne sont **pas dupliquées** : `src/pages/[...locale]/cv.astro` génère `/cv/` et `/en/cv/`.

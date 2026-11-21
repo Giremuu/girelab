@@ -69,7 +69,7 @@ Pour cibler un élément d'un **autre** composant depuis un `<style>`, on utilis
 | `InventoryItem` | Case d'un projet (icône, titre, description, tags, statut) | Projets, Jeux |
 | `ProjectList` | Grille de cases `InventoryItem` | Projets, Jeux |
 | `ComingSoon` | Écran « Bientôt disponible » | Projets, Jeux |
-| `LangSwitcher` | Menu de langue du header | Header |
+| `LangSwitcher` | Bouton de langue du header : drapeau pixel de la langue en cours + liste des langues | Header |
 | `AudioToggle` | Boutons ♪ Son / ♫ Musique du header | Header |
 | `Fireflies` | Fond animé (canvas) | Toutes les pages |
 
