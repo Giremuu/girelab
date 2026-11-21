@@ -45,7 +45,12 @@ sous-dossier `/girelab/`. C'est normal : il s'affiche correctement dès que gire
    Laisse ces enregistrements en **DNS only (nuage gris)** au début, sinon GitHub ne peut pas générer le
    certificat HTTPS.
 4. Une fois le certificat émis, coche **Enforce HTTPS** dans Settings → Pages.
-5. **Proxy Cloudflare (nuage orange)** : facultatif. Si tu l'actives, mets SSL/TLS en **Full (strict)**,
+5. **Sécuriser le domaine** (Cloudflare) :
+   - **DNSSEC** : DNS → Settings → Enable DNSSEC. Domaine acheté chez Cloudflare : activation automatique,
+     de quelques minutes à quelques heures.
+   - **CAA** : enregistrement `CAA` sur `@`, tag `issue`, valeur `letsencrypt.org`. Cloudflare ajoute
+     automatiquement les autorités de son service SSL (DigiCert, Google…) : c'est normal.
+6. **Proxy Cloudflare (nuage orange)** : facultatif. Si tu l'actives, mets SSL/TLS en **Full (strict)**,
    **jamais Flexible** (boucle de redirections).
 
 Le domaine est déjà déclaré dans `astro.config.mjs` (`site: 'https://girelab.dev'`). Il sert pour le

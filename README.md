@@ -1,7 +1,7 @@
 # girelab
 
 Site personnel de **Gwilherm « Giremuu » Le Gallic** (cybersécurité blue team · sysadmin) : CV, projets,
-jeux et contact. Bientôt en ligne sur **[girelab.dev](https://girelab.dev)**.
+jeux et contact. En ligne sur **[girelab.dev](https://girelab.dev)**.
 
 Direction artistique : un petit RPG nocturne japonais en pixel art, avec boîtes de dialogue et cœur-curseur,
 en français et en anglais.
@@ -47,7 +47,7 @@ GitHub Actions + GitHub Pages (déploiement).
 1. - [x] Première fiche projet : [suzune_check](https://github.com/Giremuu/suzune_check)
 2. - [x] CV en PDF (FR, EN) dans `public/cv/`, téléchargeables depuis le CV
 3. - [x] Documentation complète et code commenté
-4. - [ ] **Mise en ligne** : repo public, GitHub Pages, domaine girelab.dev
+4. - [x] **Mise en ligne** : repo public, GitHub Pages, domaine girelab.dev (HTTPS, CAA, DNSSEC)
        (voir [07 · Mise en ligne](Documentations/07-mise-en-ligne.md))
 5. - [ ] **Premier jeu** : fiche + jeu jouable dans le navigateur
 6. - [ ] **Version japonaise** (`/ja/`), d'ici 2 à 3 ans
