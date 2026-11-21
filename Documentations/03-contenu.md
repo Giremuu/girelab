@@ -12,6 +12,7 @@ composants.
 | Les textes d'interface (menus, boutons, dialogues d'accueil et de contact) | `src/i18n/ui.ts` |
 | Ajouter un projet ou un jeu | `src/content/projects/fr/<nom>.md` (+ `en/`) |
 | La photo de profil | `src/assets/pfp.png` (remplacer en gardant le nom) |
+| Les mentions légales | objet `content` dans `src/pages/[...locale]/[mentions]/index.astro` |
 | Les CV en PDF | déposer `cv-fr.pdf`, `cv-en.pdf` (et plus tard `cv-ja.pdf`) dans `public/cv/` |
 
 ## Le CV (`src/data/cv/<langue>.yaml`)
@@ -113,7 +114,7 @@ Si une clé manque en anglais, TypeScript le signale (`npx astro check`).
 ## Ajouter un projet ou un jeu
 
 1. Copie un modèle de [modeles-fiches/](modeles-fiches/) dans `src/content/projects/fr/`.
-   Le **nom du fichier donne l'adresse** : `mon-outil.md` → `/projets/mon-outil/`.
+   Le **nom du fichier donne l'adresse** : `mon-outil.md` → `/projets/mon-outil/` et `/en/projects/mon-outil/`.
 2. Remplis l'en-tête (entre les `---`) :
 
    ```yaml

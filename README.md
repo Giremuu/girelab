@@ -53,8 +53,6 @@ GitHub Actions + GitHub Pages (déploiement).
 6. - [ ] **Version japonaise** (`/ja/`), d'ici 2 à 3 ans
        (voir [06 · Langues](Documentations/06-langues.md))
 
-Plus tard : alléger le chargement des polices (charger les caractères japonais seulement sur `/ja/`),
-recolorer les pétales du fond aux couleurs de la palette.
 
 ## Licence
 

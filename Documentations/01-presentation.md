@@ -26,14 +26,16 @@ Les sons d'interface et la musique chiptune sont **coupés par défaut**, le vis
 
 ## Les pages
 
-| Page | Adresse | Contenu |
+| Page | Adresse (FR · EN) | Contenu |
 |---|---|---|
-| Accueil | `/` | Dialogue d'accueil + menu au cœur (CV · Projets · Jeux · Contact) |
-| CV | `/cv/` | Profil, langues, skills, diplômes et certifications, expériences, bouton PDF |
-| Projets | `/projets/` | Fiches outils et scripts (ex. suzune_check) |
-| Fiche projet | `/projets/<nom>/` | Détail d'un projet + lien vers le code |
-| Jeux | `/jeux/` | « Bientôt disponible » pour l'instant |
-| Contact | `/contact/` | Dialogue + menu au cœur vers GitHub, LinkedIn, Root-Me |
+| Accueil | `/` · `/en/` | Dialogue d'accueil + menu au cœur (CV · Projets · Jeux · Contact) |
+| CV | `/cv/` · `/en/cv/` | Profil, langues, skills, diplômes et certifications, expériences, bouton PDF |
+| Projets | `/projets/` · `/en/projects/` | Fiches outils et scripts (ex. suzune_check) |
+| Fiche projet | `/projets/<nom>/` · `/en/projects/<nom>/` | Détail d'un projet + lien vers le code |
+| Jeux | `/jeux/` · `/en/games/` | « Bientôt disponible » pour l'instant |
+| Contact | `/contact/` · `/en/contact/` | Dialogue + menu au cœur vers GitHub, LinkedIn, Root-Me |
+| Mentions légales | `/mentions-legales/` · `/en/legal-notice/` | Éditeur, hébergeur, données personnelles (lien dans le footer) |
 | 404 | n'importe quelle adresse inconnue | Page d'erreur FR / EN |
 
-Chaque page existe aussi en anglais sous `/en/…` (voir [06 · Langues](06-langues.md)).
+Chaque page existe en français et en anglais, avec les noms de section traduits dans l'adresse
+(voir [06 · Langues](06-langues.md)).

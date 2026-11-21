@@ -1,6 +1,6 @@
 ---
 /**
- * Page Projets (/projets/ et /en/projets/) : fiches `kind: tool` (Outils) et `kind: script` (Scripts),
+ * Page Projets (/projets/ et /en/projects/) : fiches `kind: tool` (Outils) et `kind: script` (Scripts),
  * ou écran « Bientôt disponible » tant qu'il n'y en a aucune.
  */
 import Base from '../../../layouts/Base.astro';
@@ -10,9 +10,13 @@ import ComingSoon from '../../../components/ComingSoon.astro';
 import { localeParams, langFromParam } from '../../../i18n/config';
 import { useTranslations } from '../../../i18n/ui';
 import { getProjects } from '../../../lib/projects';
+import { segmentFor } from '../../../i18n/routes';
 
 export function getStaticPaths() {
-  return localeParams.map((locale) => ({ params: { locale } }));
+  // une page par langue, nom de section traduit : /projets/ et /en/projects/ (voir src/i18n/routes.ts)
+  return localeParams.map((locale) => ({
+    params: { locale, projets: segmentFor('projets', langFromParam(locale)) },
+  }));
 }
 
 const lang = langFromParam(Astro.params.locale);

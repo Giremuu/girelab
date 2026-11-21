@@ -1,17 +1,19 @@
 ---
 /**
- * Génère une page par jeu : /jeux/<slug>/ (et /en/jeux/<slug>/).
+ * Génère une page par outil ou script : /projets/<slug>/ (et /en/projects/<slug>/).
  * Le slug est le nom du fichier dans src/content/projects/<langue>/.
  */
 import ProjectPage from '../../../layouts/ProjectPage.astro';
 import { localeParams, langFromParam } from '../../../i18n/config';
 import { getProjects, type Project } from '../../../lib/projects';
+import { segmentFor } from '../../../i18n/routes';
 
 export async function getStaticPaths() {
   const paths = [];
   for (const locale of localeParams) {
-    for (const project of await getProjects(['game'], langFromParam(locale))) {
-      paths.push({ params: { locale, slug: project.slug }, props: { project } });
+    for (const project of await getProjects(['tool', 'script'], langFromParam(locale))) {
+      const projets = segmentFor('projets', langFromParam(locale));
+      paths.push({ params: { locale, projets, slug: project.slug }, props: { project } });
     }
   }
   return paths;

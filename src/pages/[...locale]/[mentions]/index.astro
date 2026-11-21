@@ -1,0 +1,140 @@
+---
+/**
+ * Mentions légales (/mentions-legales/ et /en/legal-notice/).
+ * Obligation légale pour un site public (LCEN) : identification de l'éditeur et de l'hébergeur,
+ * informations sur les données personnelles. Lien dans le footer (src/layouts/Base.astro).
+ * Le texte de chaque langue est dans l'objet `content` ci-dessous.
+ */
+import Base from '../../../layouts/Base.astro';
+import Window from '../../../components/Window.astro';
+import { localeParams, langFromParam, type Lang } from '../../../i18n/config';
+import { useTranslations } from '../../../i18n/ui';
+import { contacts } from '../../../data/contact';
+import { segmentFor } from '../../../i18n/routes';
+
+export function getStaticPaths() {
+  // une page par langue, nom de section traduit : /mentions-legales/ et /en/legal-notice/ (voir src/i18n/routes.ts)
+  return localeParams.map((locale) => ({
+    params: { locale, mentions: segmentFor('mentions-legales', langFromParam(locale)) },
+  }));
+}
+
+const lang = langFromParam(Astro.params.locale);
+const t = useTranslations(lang);
+const linkedin = contacts.find((c) => c.label === 'LinkedIn')?.href;
+const githubPrivacy = 'https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement';
+
+// side: true = bloc affiché dans la colonne de droite (les autres vont à gauche)
+const content: Record<Lang, { title: string; sections: { title: string; html: string; side?: boolean }[] }> = {
+  fr: {
+    title: 'Mentions légales',
+    sections: [
+      {
+        title: 'Éditeur',
+        html: `Ce site est un site personnel et non professionnel, édité par <strong>Gwilherm Le Gallic</strong>.<br />
+          Contact : ${linkedin ? `<a href="${linkedin}" rel="noopener">LinkedIn</a>` : 'via les liens de la page Contact'}.`,
+      },
+      {
+        title: 'Hébergeur',
+        html: `<strong>GitHub, Inc.</strong> (service GitHub Pages)<br />
+          88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis<br />
+          <a href="https://github.com" rel="noopener">github.com</a>`,
+      },
+      {
+        title: 'Données personnelles',
+        side: true,
+        html: `Ce site n'utilise <strong>aucun cookie</strong>, aucune mesure d'audience, aucun traceur publicitaire
+          et ne contient aucun formulaire. Les polices sont hébergées avec le site : aucun service tiers n'est appelé.<br /><br />
+          Le site enregistre uniquement <strong>dans votre navigateur</strong> vos préférences de son et de musique,
+          ainsi que le fait d'avoir déjà lu le dialogue d'accueil. Ces informations ne sont jamais transmises et
+          peuvent être effacées depuis les réglages de votre navigateur.<br /><br />
+          L'hébergeur peut enregistrer des données techniques de connexion (comme l'adresse IP) pour assurer la
+          sécurité de son service : voir la <a href="${githubPrivacy}" rel="noopener">déclaration de confidentialité de GitHub</a>.`,
+      },
+      {
+        title: 'Propriété intellectuelle',
+        html: `Les textes et contenus de ce site sont la propriété de Gwilherm Le Gallic, sauf mention contraire.<br />
+          Polices DotGothic16 et Zen Maru Gothic : licence SIL Open Font License.`,
+      },
+    ],
+  },
+  en: {
+    title: 'Legal notice',
+    sections: [
+      {
+        title: 'Publisher',
+        html: `This is a personal, non-commercial website published by <strong>Gwilherm Le Gallic</strong>.<br />
+          Contact: ${linkedin ? `<a href="${linkedin}" rel="noopener">LinkedIn</a>` : 'through the links on the Contact page'}.`,
+      },
+      {
+        title: 'Hosting',
+        html: `<strong>GitHub, Inc.</strong> (GitHub Pages)<br />
+          88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, United States<br />
+          <a href="https://github.com" rel="noopener">github.com</a>`,
+      },
+      {
+        title: 'Personal data',
+        side: true,
+        html: `This website uses <strong>no cookies</strong>, no analytics, no advertising trackers and has no forms.
+          Fonts are hosted with the site: no third-party service is called.<br /><br />
+          The site only stores <strong>in your browser</strong> your sound and music preferences, and whether you
+          have already read the welcome dialogue. This information is never sent anywhere and can be cleared from
+          your browser settings.<br /><br />
+          The host may log technical connection data (such as IP addresses) to keep its service secure: see the
+          <a href="${githubPrivacy}" rel="noopener">GitHub privacy statement</a>.`,
+      },
+      {
+        title: 'Intellectual property',
+        html: `Texts and content on this website belong to Gwilherm Le Gallic unless stated otherwise.<br />
+          DotGothic16 and Zen Maru Gothic fonts: SIL Open Font License.`,
+      },
+    ],
+  },
+};
+const page = content[lang] ?? content.fr;
+const columns = [page.sections.filter((s) => !s.side), page.sections.filter((s) => s.side)];
+---
+
+<Base lang={lang} title={page.title} description={page.title}>
+  <h1 class="page-title">{page.title}</h1>
+  <!-- 2 colonnes sur grand écran (comme le CV), une seule sur mobile -->
+  <div class="legal">
+    {
+      columns.map((col) => (
+        <div class="col">
+          {col.map((s) => (
+            <Window title={s.title}>
+              {/* Texte fixe écrit dans ce fichier (aucune donnée extérieure) : set:html sans risque */}
+              <p set:html={s.html} />
+            </Window>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+  <p class="back"><a href={lang === 'fr' ? '/' : `/${lang}/`} class="pixel">{t('notfound.back')}</a></p>
+</Base>
+
+<style>
+  .legal {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gap-lg);
+    align-items: start;
+  }
+  .col {
+    display: grid;
+    gap: var(--gap);
+  }
+  @media (max-width: 900px) {
+    .legal {
+      grid-template-columns: 1fr;
+    }
+  }
+  .legal p {
+    margin: 0;
+  }
+  .back {
+    margin-top: var(--gap-lg);
+  }
+</style>

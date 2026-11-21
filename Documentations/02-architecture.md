@@ -66,11 +66,17 @@ Dans Astro, **un fichier de `src/pages/` donne une adresse** :
 |---|---|
 | `src/pages/[...locale]/index.astro` | `/` et `/en/` |
 | `src/pages/[...locale]/cv.astro` | `/cv/` et `/en/cv/` |
-| `src/pages/[...locale]/projets/[slug].astro` | `/projets/suzune-check/`, `/en/projets/suzune-check/`… |
+| `src/pages/[...locale]/[projets]/index.astro` | `/projets/` et `/en/projects/` |
+| `src/pages/[...locale]/[projets]/[slug].astro` | `/projets/suzune-check/`, `/en/projects/suzune-check/`… |
 | `src/pages/404.astro` | `/404.html` |
 
-Le dossier `[...locale]` est un paramètre : chaque page est générée **une fois par langue** à partir d'un
-seul fichier. `[slug]` est générée une fois par fiche projet. Les listes viennent de `getStaticPaths()`
+Les noms entre crochets sont des **paramètres** :
+
+- `[...locale]` : chaque page est générée **une fois par langue** à partir d'un seul fichier (rien en français,
+  `en` en anglais) ;
+- `[projets]`, `[jeux]`, `[mentions]` : le nom de la section, **traduit selon la langue** (`projets` / `projects`),
+  d'après la table `routeSegments` de `src/i18n/routes.ts` ;
+- `[slug]` : une page par fiche projet (nom du fichier `.md`). Les listes viennent de `getStaticPaths()`
 en haut de chaque fichier.
 
 ## Les commandes

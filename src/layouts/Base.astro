@@ -7,9 +7,12 @@
  * Props : lang (langue de la page), title, description.
  */
 import { ClientRouter } from 'astro:transitions';
-import '@fontsource/dotgothic16';
-import '@fontsource/zen-maru-gothic/400.css';
-import '@fontsource/zen-maru-gothic/700.css';
+// Polices : uniquement les caractères latins (français, anglais) pour un CSS léger.
+// Les rares caractères japonais (ex. 日本語) utilisent la police japonaise du système.
+// Version japonaise du site : ajouter les sous-ensembles 'japanese' (voir Documentations/06-langues.md).
+import '@fontsource/dotgothic16/latin-400.css';
+import '@fontsource/zen-maru-gothic/latin-400.css';
+import '@fontsource/zen-maru-gothic/latin-700.css';
 import '../styles/global.css';
 import Fireflies from '../components/Fireflies.astro';
 import AudioToggle from '../components/AudioToggle.astro';
@@ -114,6 +117,8 @@ const zone = { forwards: step, backwards: step };
 
     <footer class="footer container pixel">
       <span>© {new Date().getFullYear()} Giremuu</span>
+      <span aria-hidden="true"> · </span>
+      <a href={localizePath('/mentions-legales/', lang)}>{t('footer.legal')}</a>
     </footer>
 
     <script>
@@ -206,6 +211,12 @@ const zone = { forwards: step, backwards: step };
     color: var(--paper-dim);
     font-size: 0.8rem;
     border-top: 1px solid var(--night-3);
+  }
+  .footer a {
+    color: var(--paper-dim);
+  }
+  .footer a:hover {
+    color: var(--kin);
   }
   .skip:focus {
     position: fixed;

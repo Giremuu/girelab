@@ -1,6 +1,6 @@
 ---
 /**
- * Page Jeux (/jeux/ et /en/jeux/) : liste des fiches `kind: game`,
+ * Page Jeux (/jeux/ et /en/games/) : liste des fiches `kind: game`,
  * ou écran « Bientôt disponible » tant qu'il n'y en a aucune.
  */
 import Base from '../../../layouts/Base.astro';
@@ -10,9 +10,13 @@ import ComingSoon from '../../../components/ComingSoon.astro';
 import { localeParams, langFromParam } from '../../../i18n/config';
 import { useTranslations } from '../../../i18n/ui';
 import { getProjects } from '../../../lib/projects';
+import { segmentFor } from '../../../i18n/routes';
 
 export function getStaticPaths() {
-  return localeParams.map((locale) => ({ params: { locale } }));
+  // une page par langue, nom de section traduit : /jeux/ et /en/games/ (voir src/i18n/routes.ts)
+  return localeParams.map((locale) => ({
+    params: { locale, jeux: segmentFor('jeux', langFromParam(locale)) },
+  }));
 }
 
 const lang = langFromParam(Astro.params.locale);
